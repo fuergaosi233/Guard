@@ -62,6 +62,21 @@ export default {
     },
 
     async logout() {
+      const url = `${window.location.origin}/cas/logout`;
+
+      const appToken = this.getAppToken();
+      const result = await axios
+        .get(url, null, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("_authing_token")}`
+          },
+          withCredentials: true
+        })
+        .catch(err => {
+          console.log("cas退出报错");
+          console.log(err);
+        });
+      console.log(result);
       const appId = this.$route.query.app_id || this.$route.query.client_id;
       const redirect_uri = this.$route.query.redirect_uri;
       // 参数检查
@@ -97,21 +112,7 @@ export default {
       // this.logoutMsg = "退出成功";
 
       // 若登录则读取 token 然后清空 localStorage
-      const url = `${window.location.origin}/cas/logout`;
 
-      const appToken = this.getAppToken();
-      const result = await axios
-        .get(url, null, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("_authing_token")}`
-          },
-          withCredentials: true
-        })
-        .catch(err => {
-          console.log("cas退出报错");
-          console.log(err);
-        });
-      console.log(result);
       if (appToken && appToken[appId]) {
         delete appToken[appId];
         localStorage.setItem("appToken", JSON.stringify(appToken));
