@@ -66,7 +66,7 @@ export default {
 
       const appToken = this.getAppToken();
       const result = await axios
-        .get(url, null, {
+        .get(url, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("_authing_token")}`
           },
