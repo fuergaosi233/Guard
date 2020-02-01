@@ -1,7 +1,12 @@
 <template>
   <div>
     <div class="authorize">
-      <iframe v-show="false" @load.once="logout" :src="sessionEndURL" name="oidc-session-end"></iframe>
+      <iframe
+        v-show="false"
+        @load.once="logout"
+        :src="sessionEndURL"
+        name="oidc-session-end"
+      ></iframe>
       <div class="_authing_container" id="_authing_login_form_content">
         <div class="authing-login-form-wrapper">
           <div
@@ -27,6 +32,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   data() {
     return {
@@ -48,8 +54,8 @@ export default {
       try {
         appToken = JSON.parse(appToken);
       } catch (error) {
-        appToken = null
-        localStorage.removeItem('appToken')
+        appToken = null;
+        localStorage.removeItem("appToken");
       }
 
       return appToken;
@@ -91,14 +97,28 @@ export default {
       // this.logoutMsg = "退出成功";
 
       // 若登录则读取 token 然后清空 localStorage
+      const url = `${window.location.origin}/cas/logout`;
+
       const appToken = this.getAppToken();
+      const result = await axios
+        .get(url, null, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("_authing_token")}`
+          },
+          withCredentials: true
+        })
+        .catch(err => {
+          console.log("cas退出报错");
+          console.log(err);
+        });
+      console.log(result);
       if (appToken && appToken[appId]) {
         delete appToken[appId];
         localStorage.setItem("appToken", JSON.stringify(appToken));
         localStorage.removeItem("_authing_token");
         setTimeout(() => {
           location.href = redirect_uri;
-        }, 3000)
+        }, 3000);
         try {
           this.removeOIDCSession();
         } catch (err) {
@@ -128,7 +148,6 @@ export default {
   }
 };
 </script>
-
 
 <style scoped>
 @font-face {
